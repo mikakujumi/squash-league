@@ -1,22 +1,22 @@
-document.getElementById('upload-excel').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+// Funkcja do pobrania i wczytania pliku Excel
+async function loadExcelFile() {
+    try {
+        // Pobierz plik results.xlsx z serwera
+        const response = await fetch('results.xlsx');
+        if (!response.ok) throw new Error('Fehler beim Laden der Datei.');
 
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
+        const arrayBuffer = await response.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
 
-        // Pobierz pierwszy arkusz
+        // Pobierz pierwszy arkusz Excela
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
 
-        // Konwersja na tablicę obiektów
+        // Konwersja arkusza na JSON
         const results = XLSX.utils.sheet_to_json(sheet);
 
-        // Wyczyść tabelę przed aktualizacją
+        // Pobierz element tabeli i wyczyść go
         const tableBody = document.querySelector('#results-table tbody');
         tableBody.innerHTML = '';
 
@@ -26,9 +26,14 @@ document.getElementById('upload-excel').addEventListener('change', function(even
             tr.innerHTML = `<td>${row.Platz}</td><td>${row.Vorname}</td><td>${row.Nachname}</td><td>${row.Punkte}</td>`;
             tableBody.appendChild(tr);
         });
-    };
+    } catch (error) {
+        console.error('Fehler beim Laden der Ergebnisse:', error);
+        document.querySelector('#results-table').insertAdjacentHTML(
+            'afterend',
+            '<p style="color: red;">Die Ergebnisse konnten nicht geladen werden. Bitte versuchen Sie es später erneut.</p>'
+        );
+    }
+}
 
-    reader.onerror = function(error) {
-        console.error('Fehler beim Laden der Datei:', error);
-    };
-});
+// Załaduj plik Excel automatycznie po załadowaniu strony
+document.addEventListener('DOMContentLoaded', loadExcelFile);
