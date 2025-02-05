@@ -17,7 +17,15 @@ async function loadExcelFile() {
 
         results.forEach(row => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${row.Platz}</td><td>${row.Vorname}</td><td>${row.Nachname}</td><td>${row.Punkte}</td>`;
+            tr.innerHTML = `
+                <td>${row.Platz || ''}</td>
+                <td>${row.Nachname || ''}</td>
+                <td>${row.Vorname || ''}</td>
+                <td>${row.Spiele || ''}</td>
+                <td>${row.Punkte || ''}</td>
+                <td>${row.Sätze || ''}</td>
+                <td>${row.Diff || ''}</td>
+            `;
             tableBody.appendChild(tr);
         });
     } catch (error) {
